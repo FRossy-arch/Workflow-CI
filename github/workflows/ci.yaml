@@ -1,0 +1,30 @@
+name: CI-Train-and-Artifact
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  train-model:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Miniconda
+      uses: conda-incubator/setup-miniconda@v3
+      with:
+        environment-file: MLProject/conda.yaml
+        auto-activate-base: false
+
+    - name: Train model
+      run: |
+        cd MLProject
+        python modelling.py
+
+    - name: Upload model artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: trained-model
+        path: MLProject/model.pkl
