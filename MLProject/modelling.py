@@ -1,38 +1,42 @@
-# modelling.py
-
 import pandas as pd
 import mlflow
-import mlflow.sklearn
 import joblib
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error
 
 def main():
-    df = pd.read_csv("wine-quality-dataset_preprocessing.csv")
+    # Load dataset hasil preprocessing
+    df = pd.read_csv("abalone_preprocessing.csv")
 
-    X = df.drop(columns=["quality"])
-    y = df["quality"]
+    # Feature dan target
+    X = df.drop(columns=["Rings"])
+    y = df["Rings"]
 
+    # Split data
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42
     )
 
-    mlflow.sklearn.autolog()
+    
+    mlflow.autolog()
 
     with mlflow.start_run():
-        model = RandomForestClassifier(
+        model = RandomForestRegressor(
             n_estimators=100,
-            max_depth=5,
+            max_depth=10,
             random_state=42
         )
+
         model.fit(X_train, y_train)
 
-        accuracy = model.score(X_test, y_test)
-        print(f"Accuracy: {accuracy}")
+        preds = model.predict(X_test)
+        mse = mean_squared_error(y_test, preds)
 
-        # ⬇⬇⬇ ARTEFAK WAJIB ⬇⬇⬇
+        print(f"MSE: {mse}")
+
+        # Simpan model sebagai artefak CI
         joblib.dump(model, "model.pkl")
-        mlflow.log_artifact("model.pkl")
 
 if __name__ == "__main__":
     main()
