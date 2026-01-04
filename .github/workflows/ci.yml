@@ -9,23 +9,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Miniconda
-      uses: conda-incubator/setup-miniconda@v3
-      with:
-        environment-file: MLProject/conda.yaml
-        activate-environment: mlflow-env   
-        auto-activate-base: false
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          environment-file: MLProject/conda.yaml
+          activate-environment: mlflow-env
+          auto-activate-base: false
 
-    - name: Train model
-      shell: bash -l {0}                   
-      run: |
-        cd MLProject
-        python modelling.py
+      - name: Install MLflow
+        shell: bash -l {0}
+        run: |
+          pip install mlflow
 
-    - name: Upload model artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: trained-model
-        path: MLProject/model.pkl
+      - name: Train model with MLflow Project
+        shell: bash -l {0}
+        run: |
+          cd MLProject
+          mlflow run .
+
+      - name: Upload model artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: trained-model
+          path: MLProject/model.pkl
