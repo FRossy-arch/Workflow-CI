@@ -1,6 +1,4 @@
-name: workflow-ci-ml
-
-conda_env: conda.yaml
+name: abalone-project
 
 entry_points:
   main:
